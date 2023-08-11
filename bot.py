@@ -1,19 +1,11 @@
 import asyncio
 import logging
 
-from tgbot.filters.admin import AdminFilter
-from tgbot.handlers.admin import register_admin
 from tgbot.handlers.user import register_user
 from tgbot.handlers.echo import register_echo
 from tgbot.middlewares.environment import EnvironmentMiddleware
-from tgbot.misc.scheduler import scheduler_jobs
 
-from create_bot import bot, dp, config, scheduler
-
-logger = logging.getLogger(__name__)
-file_log = logging.FileHandler("logger.log")
-console_out = logging.StreamHandler()
-logging.basicConfig(handlers=(file_log, console_out), level=logging.INFO)
+from create_bot import bot, dp, config, logger
 
 
 def register_all_middlewares(dp, config):
@@ -21,21 +13,14 @@ def register_all_middlewares(dp, config):
 
 
 def register_all_filters(dp):
-    dp.filters_factory.bind(AdminFilter)
     pass
 
 
 def register_all_handlers(dp):
-    register_admin(dp)
     register_user(dp)
-    register_echo(dp)
 
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-    )
     logger.info("Starting bot")
 
     bot['config'] = config
@@ -43,12 +28,9 @@ async def main():
     register_all_middlewares(dp, config)
     register_all_filters(dp)
     register_all_handlers(dp)
-    scheduler.start()
-    scheduler_jobs()
 
     # start
     try:
-        # await bot.get_session()
         await dp.start_polling()
     finally:
         await dp.storage.close()

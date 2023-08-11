@@ -3,11 +3,8 @@ from aiogram.types import Message
 from aiogram.dispatcher.filters import Text
 
 
-
-import json
-
 async def user_start(message: Message):
-    pass
+    await message.answer("Bot started!")
 
 
 
