@@ -17,8 +17,8 @@ services:
     restart: always
     env_file:
       - ".env"
-    depends_on:
-      - bot_mongo
+#    depends_on:
+#      - bot_mongo
     ports:
       - "8443:8443"
     logging:
@@ -27,5 +27,5 @@ services:
         max-size: "200k"
         max-file: "10"
 
-  bot_mongo:
-    image: mongodb/mongodb-community-server:6.0-ubi8
+#  bot_mongo:
+#    image: mongodb/mongodb-community-server:6.0-ubi8
