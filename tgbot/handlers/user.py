@@ -64,7 +64,7 @@ async def last_tickets_clb(callback: CallbackQuery):
         st_text.append("---")
     lt_text.extend(st_text)
     kb = inline.last_tickets_kb()
-    await callback.message.answer("\n".join(lt_text), reply_markup=kb)
+    await callback.message.edit_text("\n".join(lt_text), reply_markup=kb)
     await bot.answer_callback_query(callback.id)
 
 
@@ -74,7 +74,7 @@ async def set_primary_coin_clb(callback: CallbackQuery):
     custom_currencies = users_db.get_list_object(user_id=callback.from_user.id, list_object="custom_currencies")
     currencies.extend(custom_currencies)
     kb = inline.rates_list_kb(rates=currencies, step="primary")
-    await callback.message.answer(text, reply_markup=kb)
+    await callback.message.edit_text(text, reply_markup=kb)
     await bot.answer_callback_query(callback.id)
 
 
@@ -86,7 +86,7 @@ async def manual_clb(callback: CallbackQuery):
         await UserFSM.primary_manual.set()
     else:  # secondary
         await UserFSM.secondary_manual.set()
-    await callback.message.answer(text, reply_markup=kb)
+    await callback.message.edit_text(text, reply_markup=kb)
     await bot.answer_callback_query(callback.id)
 
 
@@ -179,7 +179,7 @@ async def change_value_clb(callback: CallbackQuery, state: FSMContext = None):
         text = f"Измените количество:\n{value} {rate.upper()}"
         kb = inline.back_to_render_kb(rate=rate)
     await UserFSM.value.set()
-    await callback.message.answer(text, reply_markup=kb)
+    await callback.message.edit_text(text, reply_markup=kb)
     await bot.answer_callback_query(callback.id)
 
 
@@ -212,7 +212,7 @@ async def set_secondary_coin_clb(callback: CallbackQuery, state: FSMContext):
             rates_kb_list.append(rate)
     text = "Выберите валюту, в которую будем рассчитывать курсы конвертации"
     kb = inline.rates_list_kb(rates=rates_kb_list, step="secondary")
-    await callback.message.answer(text, reply_markup=kb)
+    await callback.message.edit_text(text, reply_markup=kb)
     await bot.answer_callback_query(callback.id)
 
 
@@ -258,7 +258,7 @@ async def save_ticket(callback: CallbackQuery, state: FSMContext):
     if len(current_saved_tickets) == 10:
         text = "Не удалось сохранить запрос. Превышен лимит"
         kb = inline.to_converter_kb()
-        await callback.message.answer(text, reply_markup=kb)
+        await callback.message.edit_text(text, reply_markup=kb)
     else:
         async with state.proxy() as data:
             rate = data.as_dict()["rate"]
