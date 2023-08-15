@@ -13,7 +13,7 @@ services:
     volumes:
     - .:/usr/src/app/inside_gpt_bot
     - "./certs:/usr/src/certs"
-    command: sh -c "alembic upgrade head && python3 -m bot"
+    command: python3 -m bot
     restart: always
     env_file:
       - ".env"
