@@ -51,15 +51,17 @@ async def last_tickets_clb(callback: CallbackQuery):
     if len(last_tickets) > 0:
         for ticket in last_tickets:
             result = converter(coin=ticket["coin"], target=ticket["target"], value=ticket["value"])
-            text = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
-            lt_text.append(text)
+            if result:
+                text = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
+                lt_text.append(text)
     else:
         lt_text.append("---")
     if len(saved_tickets) > 0:
         for target in saved_tickets[0]["targets"]:
             result = converter(coin=saved_tickets[0]["coin"], target=target, value=saved_tickets[0]["value"])
-            text = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
-            st_text.append(text)
+            if result:
+                text = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
+                st_text.append(text)
     else:
         st_text.append("---")
     lt_text.extend(st_text)
@@ -103,9 +105,10 @@ async def value_render(user: User,
     last_ticket = []
     for target in targets:
         result = converter(coin=rate, target=target, value=value)
-        row = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
-        text.append(row)
-        last_ticket.append(dict(coin=rate, target=target, value=value))
+        if result:
+            row = f"{result['value']} {result['coin'].upper()} = {result['total']} {result['target'].upper()}"
+            text.append(row)
+            last_ticket.append(dict(coin=rate, target=target, value=value))
     async with state.proxy() as data:
         data["rate"] = rate
         data["value"] = value

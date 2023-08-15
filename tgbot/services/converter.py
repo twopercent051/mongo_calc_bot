@@ -7,6 +7,8 @@ def converter(coin: str, target: str, value: float) -> dict:
     rates = rates_db.get_rates()["usd"]
     coin = coin.lower()
     target = target.lower()
+    if coin == target:
+        return None
     if coin != "usd":
         course1 = float(rates[coin])
     else:
