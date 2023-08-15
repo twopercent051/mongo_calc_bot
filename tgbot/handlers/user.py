@@ -15,7 +15,7 @@ inline = UserInline()
 users_db = UsersDB()
 
 
-async def start_render(user: User):
+async def start_render(user: User, clb: CallbackQuery = None):
     user_db = users_db.get_user(user_id=user.id)
     if not user_db:
         users_db.create_user(tid=user.id,
@@ -26,7 +26,10 @@ async def start_render(user: User):
                              lang=user.language_code)
     text = "Welcome"
     kb = inline.welcome_kb()
-    await bot.send_message(chat_id=user.id, text=text, reply_markup=kb)
+    if clb:
+        await clb.message.edit_text(text=text, reply_markup=kb)
+    else:
+        await bot.send_message(chat_id=user.id, text=text, reply_markup=kb)
 
 
 async def user_start_msg(message: Message):
@@ -35,7 +38,7 @@ async def user_start_msg(message: Message):
 
 
 async def user_start_clb(callback: CallbackQuery):
-    await start_render(user=callback.from_user)
+    await start_render(user=callback.from_user, clb=callback)
     await bot.answer_callback_query(callback.id)
     await UserFSM.home.set()
 
@@ -94,7 +97,8 @@ async def value_render(user: User,
                        button_list: list,
                        step: Literal["primary", "secondary"],
                        state: FSMContext,
-                       ticket_timestamp: Optional[float]=None):
+                       ticket_timestamp: Optional[float] = None,
+                       clb: CallbackQuery = None):
     text = ["Курс конвертации:"]
     last_ticket = []
     for target in targets:
@@ -108,7 +112,10 @@ async def value_render(user: User,
         data["targets"] = targets
     users_db.update_user(user_id=user.id, update_object=dict(last_ticket=last_ticket))
     kb = inline.value_render_kb(button_list=button_list, step=step, ticket_timestamp=ticket_timestamp)
-    await bot.send_message(chat_id=user.id, text="\n".join(text), reply_markup=kb)
+    if clb:
+        await clb.message.edit_text(text="\n".join(text), reply_markup=kb)
+    else:
+        await bot.send_message(chat_id=user.id, text="\n".join(text), reply_markup=kb)
 
 
 async def value_clb(callback: CallbackQuery, state: FSMContext):
@@ -123,7 +130,8 @@ async def value_clb(callback: CallbackQuery, state: FSMContext):
                            targets=currencies,
                            button_list=button_list,
                            step="primary",
-                           state=state)
+                           state=state,
+                           clb=callback)
     else:  # secondary
         async with state.proxy() as data:
             primary_rate = data.as_dict()["rate"]
@@ -136,7 +144,8 @@ async def value_clb(callback: CallbackQuery, state: FSMContext):
                            targets=targets,
                            button_list=button_list,
                            step="secondary",
-                           state=state)
+                           state=state,
+                           clb=callback)
     await bot.answer_callback_query(callback.id)
 
 
@@ -229,15 +238,18 @@ async def value_secondary_coin_msg(message: Message, state: FSMContext):
         await message.answer("Валюта не найдена. Попробуйте снова")
 
 
-async def saved_tickets_render(user_id: int | str):
+async def saved_tickets_render(user_id: int | str, clb: CallbackQuery):
     saved_tickets = users_db.get_saved_tickets(user_id=user_id)
     text = "Ваши сохранённые запросы"
     kb = inline.saved_tickets_kb(tickets=saved_tickets)
-    await bot.send_message(chat_id=user_id, text=text, reply_markup=kb)
+    if clb:
+        await clb.message.edit_text(text, reply_markup=kb)
+    else:
+        await bot.send_message(chat_id=user_id, text=text, reply_markup=kb)
 
 
 async def saved_tickets_clb(callback: CallbackQuery):
-    await saved_tickets_render(user_id=callback.from_user.id)
+    await saved_tickets_render(user_id=callback.from_user.id, clb=callback)
     await bot.answer_callback_query(callback.id)
 
 
@@ -255,7 +267,7 @@ async def save_ticket(callback: CallbackQuery, state: FSMContext):
         new_ticket = dict(coin=rate, targets=targets, value=value, timestamp=datetime.utcnow().timestamp())
         current_saved_tickets.append(new_ticket)
         users_db.update_user(user_id=callback.from_user.id, update_object=dict(saved_tickets=current_saved_tickets))
-        await saved_tickets_render(user_id=callback.from_user.id)
+        await saved_tickets_render(user_id=callback.from_user.id, clb=callback)
     await bot.answer_callback_query(callback.id)
 
 
@@ -270,7 +282,8 @@ async def saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
                        button_list=button_list,
                        step="secondary",
                        state=state,
-                       ticket_timestamp=ticket_timestamp)
+                       ticket_timestamp=ticket_timestamp,
+                       clb=callback)
     await bot.answer_callback_query(callback.id)
 
 
@@ -278,7 +291,7 @@ async def delete_ticket_clb(callback: CallbackQuery):
     ticket_timestamp = float(callback.data.split(":")[1])
     new_tickets = users_db.get_saved_tickets_after_delete(user_id=callback.from_user.id, timestamp=ticket_timestamp)
     users_db.update_user(user_id=callback.from_user.id, update_object=dict(saved_tickets=new_tickets))
-    await saved_tickets_render(user_id=callback.from_user.id)
+    await saved_tickets_render(user_id=callback.from_user.id, clb=callback)
     await bot.answer_callback_query(callback.id)
 
 
@@ -292,7 +305,7 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
     new_ticket = dict(coin=rate, targets=targets, value=value, timestamp=datetime.utcnow().timestamp())
     new_tickets.append(new_ticket)
     users_db.update_user(user_id=callback.from_user.id, update_object=dict(saved_tickets=new_tickets))
-    await saved_tickets_render(user_id=callback.from_user.id)
+    await saved_tickets_render(user_id=callback.from_user.id, clb=callback)
     await bot.answer_callback_query(callback.id)
 
 

@@ -9,7 +9,8 @@ from create_bot import config
 class MongoDB:
 
     def __init__(self):
-        uri = config.mongo.uri
+        # uri = config.mongo.uri
+        uri = "mongodb://83.222.10.29:27017"
         client = MongoClient(uri)
         self.table = client.tgbot_db
 
@@ -51,10 +52,6 @@ class UsersDB(MongoDB):
         return list(filter(lambda x: x["timestamp"] != timestamp, saved_tickets))
 
 
-# a = UsersDB()
-# print(a.update_user(user_id=389929933, update_object=dict(currencies_test=["usd", "eur", "rub"])))
-# print(a.get_user(user_id=389929933))
-
 class RatesDB(MongoDB):
     def __init__(self):
         super().__init__()
@@ -66,3 +63,5 @@ class RatesDB(MongoDB):
     def get_rates(self):
         return self.__collection.find_one()
 
+    def drop_collection(self):
+        self.__collection.drop()
