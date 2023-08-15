@@ -1,8 +1,11 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-class FSMAdmin(StatesGroup):
+
+class UserFSM(StatesGroup):
     home = State()
-    edit = State()
+    primary_manual = State()
+    secondary_manual = State()
+    value = State()
 
 
 

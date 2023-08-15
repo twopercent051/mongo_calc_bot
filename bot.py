@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 from tgbot.handlers.user import register_user
 from tgbot.handlers.echo import register_echo

@@ -2,3 +2,5 @@ aiogram==2.24
 
 
 betterlogging~=0.2.1
+environs~=9.5.0
+pymongo~=4.4.1
