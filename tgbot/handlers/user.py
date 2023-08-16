@@ -10,6 +10,7 @@ from tgbot.keyboards.inline import UserInline
 from tgbot.misc.states import UserFSM
 from tgbot.models.mongo import UsersDB
 from tgbot.services.converter import converter, rates_db
+from tgbot.texts.user import get_text
 
 inline = UserInline()
 users_db = UsersDB()
@@ -24,7 +25,7 @@ async def start_render(user: User, clb: CallbackQuery = None):
                              nname=user.username,
                              ibot=user.is_bot,
                              lang=user.language_code)
-    text = "Welcome"
+    text = get_text(param="start_render")
     kb = inline.welcome_kb()
     if clb:
         await clb.message.edit_text(text=text, reply_markup=kb)
@@ -46,8 +47,8 @@ async def user_start_clb(callback: CallbackQuery):
 async def last_tickets_clb(callback: CallbackQuery):
     last_tickets = users_db.get_list_object(user_id=callback.from_user.id, list_object="last_ticket")
     saved_tickets = users_db.get_saved_tickets(user_id=callback.from_user.id)
-    lt_text = ["Последний запрос:"]
-    st_text = ["\nСохранённый запрос:"]
+    lt_text = [get_text(param="last_tickets_clb_lt_text")]
+    st_text = [get_text(param="last_tickets_clb_st_text")]
     if len(last_tickets) > 0:
         for ticket in last_tickets:
             result = converter(coin=ticket["coin"], target=ticket["target"], value=ticket["value"])
@@ -71,7 +72,7 @@ async def last_tickets_clb(callback: CallbackQuery):
 
 
 async def set_primary_coin_clb(callback: CallbackQuery):
-    text = "Выберите валюту для которой будем рассчитывать курсы конвертации"
+    text = get_text(param="set_primary_coin_clb")
     currencies = users_db.get_list_object(user_id=callback.from_user.id, list_object="currencies")
     custom_currencies = users_db.get_list_object(user_id=callback.from_user.id, list_object="custom_currencies")
     currencies.extend(custom_currencies)
@@ -82,7 +83,7 @@ async def set_primary_coin_clb(callback: CallbackQuery):
 
 async def manual_clb(callback: CallbackQuery):
     step = callback.data.split(":")[1]
-    text = "Введите тикер валюты"
+    text = get_text(param="manual_clb")
     kb = inline.manual_kb()
     if step == "primary":
         await UserFSM.primary_manual.set()
@@ -101,7 +102,7 @@ async def value_render(user: User,
                        state: FSMContext,
                        ticket_timestamp: Optional[float] = None,
                        clb: CallbackQuery = None):
-    text = ["Курс конвертации:"]
+    text = [get_text(param="value_render")]
     last_ticket = []
     for target in targets:
         result = converter(coin=rate, target=target, value=value)
@@ -167,19 +168,19 @@ async def value_primary_coin_msg(message: Message, state: FSMContext):
                            state=state)
         await UserFSM.home.set()
     else:
-        await message.answer("Валюта не найдена. Попробуйте снова")
+        await message.answer(get_text(param="value_primary_coin_msg"))
 
 
 async def change_value_clb(callback: CallbackQuery, state: FSMContext = None):
     step = callback.data.split(":")[1]
     if step == "primary":
-        text = "Введите количество"
+        text = get_text(param="change_value_clb_primary")
         kb = inline.to_converter_kb()
     else:  # "secondary"
         async with state.proxy() as data:
             value = data.as_dict()["value"]
             rate = data.as_dict()["rate"]
-        text = f"Измените количество:\n{value} {rate.upper()}"
+        text = f"{get_text(param='change_value_clb_secondary')}\n{value} {rate.upper()}"
         kb = inline.back_to_render_kb(rate=rate)
     await UserFSM.value.set()
     await callback.message.edit_text(text, reply_markup=kb)
@@ -202,7 +203,7 @@ async def value_secondary_value_msg(message: Message, state: FSMContext):
                            step="secondary",
                            state=state)
     except ValueError:
-        await message.answer("Вы ввели не число")
+        await message.answer(get_text(param="value_secondary_value_msg"))
 
 
 async def set_secondary_coin_clb(callback: CallbackQuery, state: FSMContext):
@@ -213,7 +214,7 @@ async def set_secondary_coin_clb(callback: CallbackQuery, state: FSMContext):
     for rate in custom_currencies:
         if rate != default_rate:
             rates_kb_list.append(rate)
-    text = "Выберите валюту, в которую будем рассчитывать курсы конвертации"
+    text = get_text(param="set_secondary_coin_clb")
     kb = inline.rates_list_kb(rates=rates_kb_list, step="secondary")
     await callback.message.edit_text(text, reply_markup=kb)
     await bot.answer_callback_query(callback.id)
@@ -238,12 +239,12 @@ async def value_secondary_coin_msg(message: Message, state: FSMContext):
                            state=state)
         await UserFSM.home.set()
     else:
-        await message.answer("Валюта не найдена. Попробуйте снова")
+        await message.answer(get_text(param="value_secondary_coin_msg"))
 
 
 async def saved_tickets_render(user_id: int | str, clb: CallbackQuery):
     saved_tickets = users_db.get_saved_tickets(user_id=user_id)
-    text = "Ваши сохранённые запросы"
+    text = get_text(param="saved_tickets_render")
     kb = inline.saved_tickets_kb(tickets=saved_tickets)
     if clb:
         await clb.message.edit_text(text, reply_markup=kb)
@@ -259,7 +260,7 @@ async def saved_tickets_clb(callback: CallbackQuery):
 async def save_ticket(callback: CallbackQuery, state: FSMContext):
     current_saved_tickets = users_db.get_saved_tickets(user_id=callback.from_user.id)
     if len(current_saved_tickets) == 10:
-        text = "Не удалось сохранить запрос. Превышен лимит"
+        text = get_text(param="save_ticket")
         kb = inline.to_converter_kb()
         await callback.message.edit_text(text, reply_markup=kb)
     else:
