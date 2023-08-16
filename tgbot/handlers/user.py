@@ -81,7 +81,7 @@ async def set_primary_coin_clb(callback: CallbackQuery):
     await bot.answer_callback_query(callback.id)
 
 
-async def manual_clb(callback: CallbackQuery):
+async def manual_clb(callback: CallbackQuery, state: FSMContext):
     step = callback.data.split(":")[1]
     text = get_text(param="manual_clb")
     kb = inline.manual_kb()
@@ -90,6 +90,9 @@ async def manual_clb(callback: CallbackQuery):
     else:  # secondary
         await UserFSM.secondary_manual.set()
     await callback.message.edit_text(text, reply_markup=kb)
+    async with state.proxy() as data:
+        data["msg_text"] = text
+        data["msg_kb"] = kb
     await bot.answer_callback_query(callback.id)
 
 
@@ -184,6 +187,9 @@ async def change_value_clb(callback: CallbackQuery, state: FSMContext = None):
         kb = inline.back_to_render_kb(rate=rate)
     await UserFSM.value.set()
     await callback.message.edit_text(text, reply_markup=kb)
+    async with state.proxy() as data:
+        data["msg_text"] = text
+        data["msg_kb"] = kb
     await bot.answer_callback_query(callback.id)
 
 
@@ -315,16 +321,19 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
 
 
 async def plug(message: Message, state: FSMContext):
-    state = await state.get_state()
+    state_str = await state.get_state()
     if state:
-        if state.split(":")[1] in ["primary_manual", "secondary_manual"]:
-            text = get_text(param="manual_clb")
-            kb = inline.manual_kb()
-            await message.answer(text, reply_markup=kb)
-        if state.split(":")[1] == "value":
+        # if state.split(":")[1] in ["primary_manual", "secondary_manual"]:
+        #     text = get_text(param="manual_clb")
+        #     kb = inline.manual_kb()
+        #     await message.answer(text, reply_markup=kb)
+        if state_str.split(":")[1] == "home":
             pass
         else:
-            await start_render(user=message.from_user)
+            async with state.proxy() as data:
+                msg_text = data.as_dict()["msg_text"]
+                msg_kb = data.as_dict()["msg_kb"]
+            await message.answer(text=msg_text, reply_markup=msg_kb)
     else:
         await start_render(user=message.from_user)
 
