@@ -335,7 +335,7 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(value_primary_coin_msg, state=UserFSM.primary_manual)
     dp.register_message_handler(value_secondary_coin_msg, state=UserFSM.secondary_manual)
     dp.register_message_handler(value_secondary_value_msg, state=UserFSM.value)
-    dp.register_message_handler(plug, state="*")
+    dp.register_message_handler(plug, state="*", content_types=["any"])
 
     dp.register_callback_query_handler(user_start_clb, text="main_menu", state="*")
     dp.register_callback_query_handler(last_tickets_clb, text="to_converter", state="*")
