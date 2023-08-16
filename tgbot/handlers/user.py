@@ -317,11 +317,11 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
 async def plug(message: Message, state: FSMContext):
     state = await state.get_state()
     if state:
-        if state.split(".")[1] in ["primary_manual", "secondary_manual"]:
+        if state.split(":")[1] in ["primary_manual", "secondary_manual"]:
             text = get_text(param="manual_clb")
             kb = inline.manual_kb()
             await message.answer(text, reply_markup=kb)
-        if state.split(".")[1] == "value":
+        if state.split(":")[1] == "value":
             pass
         else:
             await start_render(user=message.from_user)
