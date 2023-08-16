@@ -13,7 +13,8 @@ LEXICON_TEXT_RU = dict(start_render="Welcome",
                        set_secondary_coin_clb="Выберите валюту, в которую будем рассчитывать курсы конвертации",
                        value_secondary_coin_msg="Валюта не найдена. Попробуйте снова",
                        saved_tickets_render="Ваши сохранённые запросы",
-                       save_ticket="Не удалось сохранить запрос. Превышен лимит")
+                       save_ticket="Не удалось сохранить запрос. Превышен лимит",
+                       plug="Я вас не понимаю")
 
 
 LEXICON_KB_RU = dict(home_button="В конвертер валют",

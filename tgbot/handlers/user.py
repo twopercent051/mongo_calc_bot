@@ -323,19 +323,17 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
 async def plug(message: Message, state: FSMContext):
     state_str = await state.get_state()
     if state:
-        # if state.split(":")[1] in ["primary_manual", "secondary_manual"]:
-        #     text = get_text(param="manual_clb")
-        #     kb = inline.manual_kb()
-        #     await message.answer(text, reply_markup=kb)
         if state_str.split(":")[1] == "home":
-            pass
+            text = get_text(param="save_ticket")
+            kb = inline.to_converter_kb()
         else:
             async with state.proxy() as data:
-                msg_text = data.as_dict()["msg_text"]
-                msg_kb = data.as_dict()["msg_kb"]
-            await message.answer(text=msg_text, reply_markup=msg_kb)
+                text = data.as_dict()["msg_text"]
+                kb = data.as_dict()["msg_kb"]
     else:
-        await start_render(user=message.from_user)
+        text = get_text(param="plug")
+        kb = inline.welcome_kb()
+    await message.answer(text=text, reply_markup=kb)
 
 
 def register_user(dp: Dispatcher):
