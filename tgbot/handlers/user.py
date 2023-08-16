@@ -324,8 +324,8 @@ async def plug(message: Message, state: FSMContext):
     state_str = await state.get_state()
     if state:
         if state_str.split(":")[1] == "home":
-            text = get_text(param="save_ticket")
-            kb = inline.to_converter_kb()
+            text = get_text(param="plug")
+            kb = inline.welcome_kb()
         else:
             async with state.proxy() as data:
                 text = data.as_dict()["msg_text"]
