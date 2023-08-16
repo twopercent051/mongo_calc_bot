@@ -313,24 +313,28 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
     await bot.answer_callback_query(callback.id)
 
 
+async def plug(message: Message, state: FSMContext):
+    await message.answer("Шляпа")
+
+
 def register_user(dp: Dispatcher):
     """РЕГИСТРАТОР"""
     dp.register_message_handler(user_start_msg, commands=["start"], state="*")
     dp.register_message_handler(value_primary_coin_msg, state=UserFSM.primary_manual)
     dp.register_message_handler(value_secondary_coin_msg, state=UserFSM.secondary_manual)
     dp.register_message_handler(value_secondary_value_msg, state=UserFSM.value)
+    dp.register_message_handler(plug, state="*")
 
-    # dp.register_callback_query_handler(user_start_clb, lambda x: x.data == "main_menu", state="*")
     dp.register_callback_query_handler(user_start_clb, text="main_menu", state="*")
-    dp.register_callback_query_handler(last_tickets_clb, lambda x: x.data == "to_converter", state="*")
-    dp.register_callback_query_handler(set_primary_coin_clb, lambda x: x.data == "set_coin", state="*")
+    dp.register_callback_query_handler(last_tickets_clb, text="to_converter", state="*")
+    dp.register_callback_query_handler(set_primary_coin_clb, text="set_coin", state="*")
     dp.register_callback_query_handler(manual_clb, lambda x: x.data.split(":")[0] == "manual", state="*")
     dp.register_callback_query_handler(value_clb, lambda x: x.data.split(":")[0] == "rate", state="*")
     dp.register_callback_query_handler(change_value_clb, lambda x: x.data.split(":")[0] == "change_value", state="*")
     dp.register_callback_query_handler(set_secondary_coin_clb, lambda x: x.data.split(":")[0] == "add_coin", state="*")
     dp.register_callback_query_handler(save_ticket, lambda x: x.data.split(":")[0] == "save_ticket", state="*")
     dp.register_callback_query_handler(saved_ticket_clb, lambda x: x.data.split(":")[0] == "saved_ticket", state="*")
-    dp.register_callback_query_handler(saved_tickets_clb, lambda x: x.data == "saved_tickets", state="*")
+    dp.register_callback_query_handler(saved_tickets_clb, text="saved_tickets", state="*")
     dp.register_callback_query_handler(delete_ticket_clb, lambda x: x.data.split(":")[0] == "delete_ticket", state="*")
     dp.register_callback_query_handler(change_saved_ticket_clb,
                                        lambda x: x.data.split(":")[0] == "save_changes",
