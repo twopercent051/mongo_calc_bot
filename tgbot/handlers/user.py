@@ -202,6 +202,7 @@ async def value_secondary_value_msg(message: Message, state: FSMContext):
                            button_list=button_list,
                            step="secondary",
                            state=state)
+        await UserFSM.home.set()
     except ValueError:
         await message.answer(get_text(param="value_secondary_value_msg"))
 
@@ -314,7 +315,18 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
 
 
 async def plug(message: Message, state: FSMContext):
-    await message.answer("Шляпа")
+    state = await state.get_state()
+    if state:
+        if state.split(".")[1] in ["primary_manual", "secondary_manual"]:
+            text = get_text(param="manual_clb")
+            kb = inline.manual_kb()
+            await message.answer(text, reply_markup=kb)
+        if state.split(".")[1] == "value":
+            pass
+        else:
+            await start_render(user=message.from_user)
+    else:
+        await start_render(user=message.from_user)
 
 
 def register_user(dp: Dispatcher):

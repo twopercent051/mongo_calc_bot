@@ -40,6 +40,3 @@ def get_text(param: str, lang: Literal["ru", "en"] = "ru") -> str:
 def get_text_kb(param: str, lang: Literal["ru", "en"] = "ru") -> str:
     langs = dict(ru=LEXICON_KB_RU)
     return langs[lang][param]
-
-
-print(get_text_kb(param="save_changes", lang="ru"))
