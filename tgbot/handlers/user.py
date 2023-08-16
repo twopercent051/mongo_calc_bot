@@ -321,8 +321,8 @@ async def change_saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
 
 
 async def plug(message: Message, state: FSMContext):
-    state_str = await state.get_state()
     if state:
+        state_str = await state.get_state()
         if state_str.split(":")[1] == "home":
             text = get_text(param="plug")
             kb = inline.welcome_kb()
