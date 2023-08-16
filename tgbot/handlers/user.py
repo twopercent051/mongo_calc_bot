@@ -320,7 +320,8 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(value_secondary_coin_msg, state=UserFSM.secondary_manual)
     dp.register_message_handler(value_secondary_value_msg, state=UserFSM.value)
 
-    dp.register_callback_query_handler(user_start_clb, lambda x: x.data == "main_menu", state="*")
+    # dp.register_callback_query_handler(user_start_clb, lambda x: x.data == "main_menu", state="*")
+    dp.register_callback_query_handler(user_start_clb, data="main_menu", state="*")
     dp.register_callback_query_handler(last_tickets_clb, lambda x: x.data == "to_converter", state="*")
     dp.register_callback_query_handler(set_primary_coin_clb, lambda x: x.data == "set_coin", state="*")
     dp.register_callback_query_handler(manual_clb, lambda x: x.data.split(":")[0] == "manual", state="*")
