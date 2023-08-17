@@ -140,14 +140,14 @@ async def value_clb(callback: CallbackQuery, state: FSMContext):
                            state=state,
                            clb=callback)
         async with state.proxy() as data:
-            data["is_saved"] = False
+            data["ticket_timestamp"] = None
     else:  # secondary
         async with state.proxy() as data:
             primary_rate = data.as_dict()["rate"]
             value = data.as_dict()["value"]
             targets: list = data.as_dict()["targets"]
-            is_saved = data.as_dict()["is_saved"]
-        if is_saved:
+            ticket_timestamp = data.as_dict()["ticket_timestamp"]
+        if ticket_timestamp:
             button_list = ["delete_ticket", "save_changes", "back_to_tickets"]
         targets.append(rate)
         await value_render(user=callback.from_user,
@@ -156,6 +156,7 @@ async def value_clb(callback: CallbackQuery, state: FSMContext):
                            targets=targets,
                            button_list=button_list,
                            step="secondary",
+                           ticket_timestamp=ticket_timestamp,
                            state=state,
                            clb=callback)
     await bot.answer_callback_query(callback.id)
@@ -175,7 +176,7 @@ async def value_primary_coin_msg(message: Message, state: FSMContext):
                            step="primary",
                            state=state)
         async with state.proxy() as data:
-            data["is_saved"] = False
+            data["ticket_timestamp"] = None
         await UserFSM.home.set()
     else:
         await message.answer(get_text(param="value_primary_coin_msg"))
@@ -207,9 +208,9 @@ async def value_secondary_value_msg(message: Message, state: FSMContext):
         async with state.proxy() as data:
             rate = data.as_dict()["rate"]
             targets: list = data.as_dict()["targets"]
-            is_saved = data.as_dict()["is_saved"]
+            ticket_timestamp = data.as_dict()["ticket_timestamp"]
         button_list = ["save_ticket", "home"]
-        if is_saved:
+        if ticket_timestamp:
             button_list = ["delete_ticket", "save_changes", "back_to_tickets"]
         await value_render(user=message.from_user,
                            rate=rate,
@@ -217,6 +218,7 @@ async def value_secondary_value_msg(message: Message, state: FSMContext):
                            targets=targets,
                            button_list=button_list,
                            step="secondary",
+                           ticket_timestamp=ticket_timestamp,
                            state=state)
         await UserFSM.home.set()
     except ValueError:
@@ -311,7 +313,7 @@ async def saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
                        ticket_timestamp=ticket_timestamp,
                        clb=callback)
     async with state.proxy() as data:
-        data["is_saved"] = True
+        data["ticket_timestamp"] = ticket_timestamp
     await bot.answer_callback_query(callback.id)
 
 
