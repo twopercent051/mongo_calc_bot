@@ -564,7 +564,24 @@ rates_data = {
   }
 }
 
+cur_data = {"currencies": [
+    "usd",
+    "eur",
+    "rub",
+    "amd"
+  ]}
+
+ccur_data = {"custom_currencies": [
+    "btc",
+    "eth",
+    "amd",
+    "kzt"
+  ]}
+
+
+# a.update_user(user_id=389929933, update_object=ccur_data)
+
 # a.create_user(**user_data)
-# b.create_rates(**rates_data)
-# print(a.get_user(user_id=817199467))
-# print(b.get_rates())
+b.create_rates(**rates_data)
+# print(a.get_user(user_id=389929933))
+print(b.get_rates())

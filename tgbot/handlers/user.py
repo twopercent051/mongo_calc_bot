@@ -139,11 +139,16 @@ async def value_clb(callback: CallbackQuery, state: FSMContext):
                            step="primary",
                            state=state,
                            clb=callback)
+        async with state.proxy() as data:
+            data["is_saved"] = False
     else:  # secondary
         async with state.proxy() as data:
             primary_rate = data.as_dict()["rate"]
             value = data.as_dict()["value"]
             targets: list = data.as_dict()["targets"]
+            is_saved = data.as_dict()["is_saved"]
+        if is_saved:
+            button_list = ["delete_ticket", "save_changes", "back_to_tickets"]
         targets.append(rate)
         await value_render(user=callback.from_user,
                            rate=primary_rate,
@@ -169,6 +174,8 @@ async def value_primary_coin_msg(message: Message, state: FSMContext):
                            button_list=button_list,
                            step="primary",
                            state=state)
+        async with state.proxy() as data:
+            data["is_saved"] = False
         await UserFSM.home.set()
     else:
         await message.answer(get_text(param="value_primary_coin_msg"))
@@ -200,7 +207,10 @@ async def value_secondary_value_msg(message: Message, state: FSMContext):
         async with state.proxy() as data:
             rate = data.as_dict()["rate"]
             targets: list = data.as_dict()["targets"]
+            is_saved = data.as_dict()["is_saved"]
         button_list = ["save_ticket", "home"]
+        if is_saved:
+            button_list = ["delete_ticket", "save_changes", "back_to_tickets"]
         await value_render(user=message.from_user,
                            rate=rate,
                            value=value,
@@ -300,6 +310,8 @@ async def saved_ticket_clb(callback: CallbackQuery, state: FSMContext):
                        state=state,
                        ticket_timestamp=ticket_timestamp,
                        clb=callback)
+    async with state.proxy() as data:
+        data["is_saved"] = True
     await bot.answer_callback_query(callback.id)
 
 
