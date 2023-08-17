@@ -238,6 +238,9 @@ async def value_secondary_coin_msg(message: Message, state: FSMContext):
             primary_rate = data.as_dict()["rate"]
             value = data.as_dict()["value"]
             targets: list = data.as_dict()["targets"]
+        if rate_manual in targets:
+            await message.answer("Эта валюта уже добавлена")
+            return
         targets.append(rate_manual)
         await value_render(user=message.from_user,
                            rate=primary_rate,
