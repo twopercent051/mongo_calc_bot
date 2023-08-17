@@ -218,8 +218,10 @@ async def set_secondary_coin_clb(callback: CallbackQuery, state: FSMContext):
     rates_kb_list = []
     async with state.proxy() as data:
         default_rate = data.as_dict()["rate"]
+        targets = data.as_dict()["targets"]
+    targets.append(default_rate)
     for rate in custom_currencies:
-        if rate != default_rate:
+        if rate not in targets:
             rates_kb_list.append(rate)
     text = get_text(param="set_secondary_coin_clb")
     kb = inline.rates_list_kb(rates=rates_kb_list, step="secondary")
