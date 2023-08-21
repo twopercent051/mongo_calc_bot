@@ -17,5 +17,8 @@ def converter(coin: str, target: str, value: float) -> dict:
         course2 = float(rates[target])
     else:
         course2 = 1
-    total = round(value * (course2 / course1), 2)
-    return dict(coin=coin, target=target, value=round(value, 2), total=total)
+    total = value * (course2 / course1)
+    if total >= 1:
+        return dict(coin=coin, target=target, value=round(value, 2), total=round(total, 2))
+    else:
+        return dict(coin=coin, target=target, value=round(value, 2), total=round(total, 6))
